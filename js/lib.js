@@ -13,6 +13,17 @@ function resizeStage(x, y)
 
 
 
+function move(currCell, rads)
+{
+  var newx = currCell.x() + _DIAMETER * Math.cos(rads);
+  var newy = currCell.y() - _DIAMETER * Math.sin(rads);
+
+  var newCell = findNearest(newx, newy);
+  return newCell;
+}
+
+
+
 function createGrid(depth)
 {
   _GRIDLAYER = new Kinetic.Layer();
@@ -29,14 +40,14 @@ function createGrid(depth)
     fillRed: 200,
     fillGreen: 200,
     fillBlue: 255,
-    fillAlpha: 1,
-    draggable: true
+    fillAlpha: 1
   });
 
   originHex.origFillRed = 200;
   originHex.origFillGreen = 200;
   originHex.origFillBlue = 255;
   originHex.origFillAlpha = 1;
+  originHex.gridID = 0;
 
   _GRIDLAYER.add(originHex);
   hexes.push(originHex);
@@ -61,10 +72,11 @@ function createGrid(depth)
         fillAlpha: alpha
       });
 
-      originHex.origFillRed = 200;
-      originHex.origFillGreen = 200;
-      originHex.origFillBlue = 255;
-      originHex.origFillAlpha = alpha;
+      thisHex.origFillRed = 200;
+      thisHex.origFillGreen = 200;
+      thisHex.origFillBlue = 255;
+      thisHex.origFillAlpha = alpha;
+      thisHex.gridID = hexes.length;
 
       _GRIDLAYER.add(thisHex);
       hexes.push(thisHex);
@@ -81,6 +93,7 @@ function createGrid(depth)
     hexes[i].on('mousedown touchdown', function() {
       _TOKEN.x(this.x());
       _TOKEN.y(this.y());
+      colorize();
       _TOKENLAYER.draw();
     });
   }
@@ -104,7 +117,7 @@ function createToken()
     fillBlue: 15,
     fillAlpha: 1,
     stroke: "#000",
-    strokeWidth: _DIAMETER/10,
+    strokeWidth: _DIAMETER/8,
     draggable: true
   });
 
@@ -121,7 +134,7 @@ function createToken()
 
 
 
-function dropNearest(node, x, y)
+function findNearest(x, y)
 {
   var closestIndex = 0;
   var closestDist = Number.MAX_VALUE;
@@ -136,7 +149,57 @@ function dropNearest(node, x, y)
     }
   }
 
-  node.x(_GRID[closestIndex].x());
-  node.y(_GRID[closestIndex].y());
+  return _GRID[closestIndex];
+}
+
+function dropNearest(node, x, y)
+{
+  var nearest = findNearest(x, y);
+
+  node.x(nearest.x());
+  node.y(nearest.y());
+  colorize();
   _TOKENLAYER.draw();
+}
+
+
+
+function colorize()
+{
+  for(var i = 0; i < _GRID.length; i++)
+  {
+    _GRID[i].fillRed(_GRID[i].origFillRed);
+    _GRID[i].fillGreen(_GRID[i].origFillGreen);
+    _GRID[i].fillBlue(_GRID[i].origFillBlue);
+    _GRID[i].fillAlpha(_GRID[i].origFillAlpha);
+  }
+
+  var startCell = findNearest(_TOKEN.x(), _TOKEN.y());
+
+  //choose a random orientation
+  var sign = Math.random() < 0.5 ? -1 : 1;
+  var startRad = Math.PI / 6 * sign;
+
+  for(var rads = startRad; rads < (2 * Math.PI) + startRad; rads += (2 * Math.PI / 3))
+  {
+    var currCell = startCell;
+    while(true)
+    {
+      nextCell = move(currCell, rads);
+      
+      if(nextCell == currCell) break;
+      else
+      {
+        currCell = nextCell;
+        currCell.fillRed(255);
+        currCell.fillGreen(147);
+        currCell.fillBlue(15);
+        currCell.fillAlpha(1);
+        currCell = nextCell;
+      }
+
+    }
+  }
+
+  _GRIDLAYER.draw();
 }
