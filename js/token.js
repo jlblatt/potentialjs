@@ -3,24 +3,41 @@ function Token(stage)
   this.layer = new Kinetic.Layer();
   this.gridID = 0;
 
-  this.k = new Kinetic.Circle({
+  var len = _DIAMETER / Math.sqrt(3);
+
+  this.k = new Kinetic.Line({
     x: _WIDTH/2,
     y: _HEIGHT/2,
-    radius: _DIAMETER / 2,
-    fillRed: 255,
-    fillGreen: 147,
-    fillBlue: 15,
+    points: [
+      len * Math.cos(0),
+      len * Math.sin(0),
+      len * Math.cos(Math.PI/3),
+      len * Math.sin(Math.PI/3),
+      len * Math.cos(2 * Math.PI/3),
+      len * Math.sin(2 * Math.PI/3),
+      len * Math.cos(Math.PI),
+      len * Math.sin(Math.PI),
+      len * Math.cos(Math.PI + Math.PI/3),
+      len * Math.sin(Math.PI + Math.PI/3),
+      len * Math.cos(Math.PI + 2 * Math.PI/3),
+      len * Math.sin(Math.PI + 2 * Math.PI/3)
+    ],
+    fillRed: 210,
+    fillGreen: 210,
+    fillBlue: 255,
     fillAlpha: 1,
-    stroke: "#000",
-    strokeWidth: _DIAMETER/8,
-    draggable: true
+    stroke: "#D2D2FF",
+    strokeWidth: _DIAMETER/10,
+    draggable: true,
+    closed: true
   });
 
   this.k.wrapper = this;
 
   this.k.on("dragend", function() {
     var pos = stage.getPointerPosition();
-    this.wrapper.moveToNearest(pos.x, pos.y);
+    if(pos !== undefined) this.wrapper.moveToNearest(pos.x, pos.y);
+    else this.wrapper.moveTo(this.wrapper.gridID);
   });
 
   this.layer.add(this.k);

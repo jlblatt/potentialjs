@@ -3,21 +3,37 @@ function Grid(stage, depth)
   this.layer = new Kinetic.Layer();
   this.cells = [];
 
+  var len = _DIAMETER / Math.sqrt(3);
+
   //setup our first cell
-  var originHex = new Kinetic.Circle({
+  var originHex = new Kinetic.Line({
     x: _WIDTH/2,
     y: _HEIGHT/2,
-    radius: _DIAMETER / 2,
+    points: [
+      len * Math.cos(0),
+      len * Math.sin(0),
+      len * Math.cos(Math.PI/3),
+      len * Math.sin(Math.PI/3),
+      len * Math.cos(2 * Math.PI/3),
+      len * Math.sin(2 * Math.PI/3),
+      len * Math.cos(Math.PI),
+      len * Math.sin(Math.PI),
+      len * Math.cos(Math.PI + Math.PI/3),
+      len * Math.sin(Math.PI + Math.PI/3),
+      len * Math.cos(Math.PI + 2 * Math.PI/3),
+      len * Math.sin(Math.PI + 2 * Math.PI/3)
+    ],
     fillRed: 200,
     fillGreen: 200,
     fillBlue: 255,
-    fillAlpha: 1
+    fillAlpha: 1,
+    closed: true
   });
 
-  originHex.origFillRed = 200;
-  originHex.origFillGreen = 200;
+  originHex.origFillRed = 210;
+  originHex.origFillGreen = 210;
   originHex.origFillBlue = 255;
-  originHex.origFillAlpha = 1;
+  originHex.origFillAlpha = 9;
   originHex.gridID = 0;
   originHex.level = 0;
   originHex.wrapper = this;
@@ -28,21 +44,35 @@ function Grid(stage, depth)
   //each level of the grid
   for(var level = 1; level < depth; level++)
   {
-    var alpha = 1- ((1 / (depth * 1.2)) * level);
+    var alpha = 1- ((1 / (depth)) * level);
     var currCellCoords = [0, -level * _DIAMETER];
 
     //each cell in this level
     for(hex = 0; hex < level * 6; hex++)
     {
       //create the cell
-      var thisHex = new Kinetic.Circle({
+      var thisHex = new Kinetic.Line({
         x: currCellCoords[0] + (_WIDTH/2),
         y: currCellCoords[1] + (_HEIGHT/2),
-        radius: _DIAMETER / 2,
+        points: [
+          len * Math.cos(0),
+          len * Math.sin(0),
+          len * Math.cos(Math.PI/3),
+          len * Math.sin(Math.PI/3),
+          len * Math.cos(2 * Math.PI/3),
+          len * Math.sin(2 * Math.PI/3),
+          len * Math.cos(Math.PI),
+          len * Math.sin(Math.PI),
+          len * Math.cos(Math.PI + Math.PI/3),
+          len * Math.sin(Math.PI + Math.PI/3),
+          len * Math.cos(Math.PI + 2 * Math.PI/3),
+          len * Math.sin(Math.PI + 2 * Math.PI/3)
+        ],
         fillRed: 200,
         fillGreen: 200,
         fillBlue: 255,
-        fillAlpha: alpha
+        fillAlpha: alpha,
+        closed: true
       });
 
       thisHex.origFillRed = 200;
@@ -141,9 +171,9 @@ Grid.prototype.colorize = function(cid)
   }
 
   //choose a random orientation
-  var start = Math.random() < 0.5 ? 0 : 0;
+  var start = Math.random() < 0.5 ? 0 : 1;
 
-  for(var i = start; i < 6; i += 1)
+  for(var i = start; i < 6; i += 2)
   {
     var currID = cid;
     while(true)
@@ -154,9 +184,6 @@ Grid.prototype.colorize = function(cid)
       else
       {
         currID = nextID;
-        this.cells[currID].fillRed(255);
-        this.cells[currID].fillGreen(147);
-        this.cells[currID].fillBlue(15);
         this.cells[currID].fillAlpha(1);
       }
 
