@@ -1,49 +1,51 @@
-_WIDTH = 600;
-_HEIGHT = 600;
-_DIAMETER = 0;
-_GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 3;
+var _WIDTH = 600;
+var _HEIGHT = 600;
+var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 3;
+var _DIAMETER = _HEIGHT / (_GRIDDEPTH * 2);
 
-_STAGE = new Kinetic.Stage({
+var _STAGE = new Kinetic.Stage({
   container: 'stage',
   width: _WIDTH,
   height: _HEIGHT
 });
 
-resizeStage(_WIDTH, _HEIGHT);
+resizeStage(_STAGE, _WIDTH, _HEIGHT);
 
-_GRID = createGrid(_GRIDDEPTH);
+var _GRID = new Grid(_STAGE, _GRIDDEPTH);
+var _TOKEN = new Token(_STAGE);
+_GRID.attachToken(_TOKEN);
 
-_TOKEN = createToken();
 
-$(window).keyup(function(e)
+
+$(window).keydown(function(e)
 {
   var code = e.keyCode || e.which;
-  e.preventDefault();
+  var keysToUse = [12, 33, 36, 37, 38, 39, 65, 68, 69, 81, 83, 87];
 
-  //q or 7
-  if(code == 81 || code == 36)
-    dropNearest(_TOKEN, _TOKEN.x() - _DIAMETER * Math.cos(Math.PI/6), _TOKEN.y() - _DIAMETER * Math.sin(Math.PI/6));
-  
+  if($.inArray(code, keysToUse) > -1) e.preventDefault();
+
   //w or 8
-  else if(code == 87 || code == 38)
-    dropNearest(_TOKEN, _TOKEN.x(), _TOKEN.y() - _DIAMETER);
+  if(code == 87 || code == 38)
+    _TOKEN.moveByDir(0);
   
   //e or 9
   else if(code == 69 || code == 33)
-    dropNearest(_TOKEN, _TOKEN.x() + _DIAMETER * Math.cos(Math.PI/6), _TOKEN.y() - _DIAMETER * Math.sin(Math.PI/6));
-  
-  //a or 4
-  else if(code == 65 || code == 37)
-    dropNearest(_TOKEN, _TOKEN.x() - _DIAMETER * Math.cos(Math.PI/6), _TOKEN.y() + _DIAMETER * Math.sin(Math.PI/6));
-  
-  
-  //s or 5
-  else if(code == 83 || code == 12)
-    dropNearest(_TOKEN, _TOKEN.x(), _TOKEN.y() + _DIAMETER);
+    _TOKEN.moveByDir(1);
   
   //d or 6
   else if(code == 68 || code == 39)
-    dropNearest(_TOKEN, _TOKEN.x() + _DIAMETER * Math.cos(Math.PI/6), _TOKEN.y() + _DIAMETER * Math.sin(Math.PI/6));
+    _TOKEN.moveByDir(2);
 
-  _TOKENLAYER.draw();
+  //s or 5
+  else if(code == 83 || code == 12)
+    _TOKEN.moveByDir(3);
+
+  //a or 4
+  else if(code == 65 || code == 37)
+    _TOKEN.moveByDir(4);
+
+  //q or 7
+  else if(code == 81 || code == 36)
+    _TOKEN.moveByDir(5);
+
 });
