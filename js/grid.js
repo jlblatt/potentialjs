@@ -130,7 +130,7 @@ Grid.prototype.attachToken = function(token)
   //attach events
   for(var i = 0; i < this.cells.length; i++)
   {
-    this.cells[i].on('mousedown touchdown', function() {
+    this.cells[i].on('mousedown touchdown touchstart', function() {
       this.wrapper.token.moveTo(this.gridID);
     });
   }

@@ -1,3 +1,5 @@
+//TODO:
+
 var st = new Date();
 
 var _LENGTH = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
@@ -16,6 +18,42 @@ $(window).resize(function(){
   resizeStage(_STAGE, newLength,  newLength / _LENGTH);
 });
 
+var _HITLAYER = new Kinetic.Layer();
+var _HITBOX = new Kinetic.Line({
+  x: 0,
+  y: 0,
+  points: [0,0,0,_LENGTH,_LENGTH,_LENGTH,_LENGTH,0],
+  fillRed: 0,
+  fillGreen: 0,
+  fillBlue: 0,
+  fillAlpha: 0,
+  closed: true
+});
+_HITLAYER.add(_HITBOX);
+_STAGE.add(_HITLAYER);
+
+_STAGE.on("mousedown touchdown touchstart", function(){
+  var pos = _STAGE.getPointerPosition();
+  if(pos !== undefined)
+  {
+    _STAGE.xdown = pos.x;
+    _STAGE.ydown = pos.y;
+  }
+});
+
+_STAGE.on("mouseup touchup touchend", function(){
+  var pos = _STAGE.getPointerPosition();
+  if(pos !== undefined && _STAGE.xdown !== undefined && _STAGE.ydown !== undefined)
+  {
+    var dx = pos.x - _STAGE.xdown;
+    var dy = pos.y - _STAGE.ydown;
+    if(Math.abs(dx) > _DIAMETER && Math.abs(dy) > _DIAMETER)
+    {
+      alert(dx + ' / ' + dy);
+    }
+  }
+});
+
 var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX);
 var _TOKEN = new Token(_STAGE);
 _GRID.attachToken(_TOKEN);
@@ -30,7 +68,7 @@ $(window).keydown(function(e)
   var code = e.keyCode || e.which;
   var keysToUse = [12, 33, 36, 37, 38, 39, 65, 68, 69, 81, 83, 87];
 
-  if($.inArray(code, keysToUse) > -1) //e.preventDefault();
+  if($.inArray(code, keysToUse) > -1) e.preventDefault();
 
   //w or 8
   if(code == 87 || code == 38)
