@@ -1,5 +1,6 @@
-function Grid(stage, depth)
+function Grid(stage, depth, matrix)
 {
+  this.stage = stage;
   this.layer = new Kinetic.Layer();
   this.cells = [];
 
@@ -7,8 +8,8 @@ function Grid(stage, depth)
 
   //setup our first cell
   var originHex = new Kinetic.Line({
-    x: _WIDTH/2,
-    y: _HEIGHT/2,
+    x: _LENGTH/2,
+    y: _LENGTH/2,
     points: [
       len * Math.cos(0),
       len * Math.sin(0),
@@ -52,8 +53,8 @@ function Grid(stage, depth)
     {
       //create the cell
       var thisHex = new Kinetic.Line({
-        x: currCellCoords[0] + (_WIDTH/2),
-        y: currCellCoords[1] + (_HEIGHT/2),
+        x: currCellCoords[0] + (_LENGTH/2),
+        y: currCellCoords[1] + (_LENGTH/2),
         points: [
           len * Math.cos(0),
           len * Math.sin(0),
@@ -92,16 +93,27 @@ function Grid(stage, depth)
     }
   }
 
-  //calculate neighbor cells for quick movement
-  for(var i = 0; i < this.cells.length; i++)
+  if(depth < matrix.length)
   {
-    this.cells[i].neighbors = [];
-    this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() - _DIAMETER));
-    this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() - _DIAMETER * Math.sin(Math.PI/6)));
-    this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() + _DIAMETER * Math.sin(Math.PI/6)));
-    this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() + _DIAMETER));
-    this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() + _DIAMETER * Math.sin(Math.PI/6)));
-    this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() - _DIAMETER * Math.sin(Math.PI/6)));
+    for(var i = 0; i < this.cells.length; i++)
+    {
+      this.cells[i].neighbors = matrix[depth][i];
+    }
+  }
+
+  else
+  {
+    //calculate neighbor cells for quick movement (if not in matrix already)
+    for(var i = 0; i < this.cells.length; i++)
+    {
+      this.cells[i].neighbors = [];
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() - _DIAMETER));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() - _DIAMETER * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() + _DIAMETER * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() + _DIAMETER));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() + _DIAMETER * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() - _DIAMETER * Math.sin(Math.PI/6)));
+    }
   }
 
   stage.add(this.layer);
@@ -141,6 +153,10 @@ Grid.prototype.findNearestFuzzy = function(x, y)
 
 Grid.prototype.findNearestExact = function(x, y)
 {
+  //account for scaling here
+  x = x / this.stage.scaleX();
+  y = y / this.stage.scaleY();
+
   var closestIndex = 0;
   var closestDist = Number.MAX_VALUE;
   for(var i = 0; i < this.cells.length; i++)

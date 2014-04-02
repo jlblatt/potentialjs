@@ -6,8 +6,8 @@ function Token(stage)
   var len = _DIAMETER / Math.sqrt(3);
 
   this.k = new Kinetic.Line({
-    x: _WIDTH/2,
-    y: _HEIGHT/2,
+    x: _LENGTH/2,
+    y: _LENGTH/2,
     points: [
       len * Math.cos(0),
       len * Math.sin(0),

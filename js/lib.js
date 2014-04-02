@@ -1,12 +1,15 @@
-function resizeStage(stage, x, y)
+function resizeStage(stage, length, scale)
 {
   $("#stage").css({
-    'width' : x,
-    'height' : y,
-    'margin-left' : - parseInt(x/2),
-    'margin-top' : - parseInt(y/2)
+    'width' : length,
+    'height' : length,
+    'margin-left' : - parseInt(length/2),
+    'margin-top' : - parseInt(length/2)
   });
 
-  stage.setWidth(x);
-  stage.setHeight(y);
+  stage.setWidth(length);
+  stage.setHeight(length);
+  stage.scaleX(scale);
+  stage.scaleY(scale);
+  stage.draw();
 }
