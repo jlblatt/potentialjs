@@ -1,9 +1,13 @@
 //TODO:
+//
+//  -rules
+//  -clean globals out of class functions
+//
 
 var st = new Date();
 
 var _LENGTH = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
-var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 6;
+var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 5;
 var _DIAMETER = _LENGTH / (_GRIDDEPTH * 2);
 
 var _STAGE = new Kinetic.Stage({
@@ -47,9 +51,17 @@ _STAGE.on("mouseup touchup touchend", function(){
   {
     var dx = pos.x - _STAGE.xdown;
     var dy = pos.y - _STAGE.ydown;
-    if(Math.abs(dx) > _DIAMETER && Math.abs(dy) > _DIAMETER)
+    if(Math.abs(dx) + Math.abs(dy) > _DIAMETER)
     {
-      alert(dx + ' / ' + dy);
+      //swipe - determine direction
+      var theta = -Math.atan2(dy, dx) * 180 / Math.PI;
+      
+      if(theta < 120 && theta > 60) _TOKEN.moveByDir(0);
+      else if(theta < 60 && theta > 0) _TOKEN.moveByDir(1);
+      else if(theta < 0 && theta > -60) _TOKEN.moveByDir(2);
+      else if(theta < -60 && theta > -120) _TOKEN.moveByDir(3);
+      else if(theta < -120 && theta > -180) _TOKEN.moveByDir(4);
+      else if(theta < 180 && theta > 120) _TOKEN.moveByDir(5);
     }
   }
 });
@@ -58,8 +70,13 @@ var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX);
 var _TOKEN = new Token(_STAGE);
 _GRID.attachToken(_TOKEN);
 
+//var _INFECTION = new Infection(_GRID, _GRIDDEPTH);
+var _THEMER = new Themer();
+_THEMER.applyTheme('default', _GRID, _TOKEN);
+//setInterval(function(){ _THEMER.applyTheme('rainbow', _GRID, _TOKEN); }, 300);
+
 var et = new Date();
-console.log("init took: " + (et - st) + "ms");
+//console.log("init took: " + (et - st) + "ms");
 
 
 

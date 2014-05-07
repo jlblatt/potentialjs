@@ -22,23 +22,18 @@ function Token(stage)
       len * Math.cos(Math.PI + 2 * Math.PI/3),
       len * Math.sin(Math.PI + 2 * Math.PI/3)
     ],
-    fillRed: 210,
-    fillGreen: 210,
-    fillBlue: 255,
-    fillAlpha: 1,
-    stroke: "#D2D2FF",
     strokeWidth: _DIAMETER/10,
-    draggable: true,
+    //draggable: true,
     closed: true
   });
 
   this.k.wrapper = this;
 
-  this.k.on("dragend", function() {
+  /*this.k.on("dragend", function() {
     var pos = stage.getPointerPosition();
     if(pos !== undefined) this.wrapper.moveToNearest(pos.x, pos.y);
     else this.wrapper.moveTo(this.wrapper.gridID);
-  });
+  });*/
 
   this.layer.add(this.k);
   stage.add(this.layer);
@@ -48,10 +43,23 @@ Token.prototype.moveTo = function(cid)
 {
   if(cid === undefined) return;
   this.gridID = cid;
-  this.k.x(this.grid.cells[cid].x());
-  this.k.y(this.grid.cells[cid].y());
-  this.grid.colorize(cid);
-  this.layer.draw();
+
+  var dx = this.grid.cells[cid].x() - this.k.x();
+  var dy = this.grid.cells[cid].y() - this.k.y();
+  var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / 800;
+
+  //this.grid.setActivePaths(cid);
+
+  var thisToken = this;
+  var tween = new Kinetic.Tween({
+    node: thisToken.k, 
+    duration: duration,
+    x: this.grid.cells[cid].x(),
+    y: this.grid.cells[cid].y(),
+    rotation: (thisToken.k.rotation() + 180) % 360
+  });
+      
+  tween.play();
 }
 
 Token.prototype.moveToNearest = function(x, y)
@@ -63,11 +71,23 @@ Token.prototype.moveToNearest = function(x, y)
   this.gridID = nearestID;
   this.k.x(this.grid.cells[nearestID].x());
   this.k.y(this.grid.cells[nearestID].y());
-  this.grid.colorize(nearestID);
   this.layer.draw();
 }
 
 Token.prototype.moveByDir = function(dir)
 {
-  this.moveTo(this.grid.cells[this.gridID].neighbors[dir]);
+  var currID = this.gridID;
+  while(true)
+  {
+    var nextID = this.grid.cells[currID].neighbors[dir];
+    
+    if(nextID === undefined || nextID == currID) break;
+    else
+    {
+      currID = nextID;
+      if(currID == 0) break;
+    }
+  }
+
+  this.moveTo(currID);
 }

@@ -1,7 +1,9 @@
 function Grid(stage, depth, matrix)
 {
   this.stage = stage;
+  this.depth = depth;
   this.layer = new Kinetic.Layer();
+
   this.cells = [];
 
   var len = _DIAMETER / Math.sqrt(3);
@@ -24,20 +26,14 @@ function Grid(stage, depth, matrix)
       len * Math.cos(Math.PI + 2 * Math.PI/3),
       len * Math.sin(Math.PI + 2 * Math.PI/3)
     ],
-    fillRed: 200,
-    fillGreen: 200,
-    fillBlue: 255,
-    fillAlpha: 1,
     closed: true
   });
 
-  originHex.origFillRed = 210;
-  originHex.origFillGreen = 210;
-  originHex.origFillBlue = 255;
-  originHex.origFillAlpha = 9;
   originHex.gridID = 0;
   originHex.level = 0;
   originHex.wrapper = this;
+
+  originHex.activePath = false;
 
   this.layer.add(originHex);
   this.cells.push(originHex);
@@ -45,7 +41,7 @@ function Grid(stage, depth, matrix)
   //each level of the grid
   for(var level = 1; level < depth; level++)
   {
-    var alpha = 1- ((1 / (depth)) * level);
+    var alpha = 1 - ((1 / (depth)) * level);
     var currCellCoords = [0, -level * _DIAMETER];
 
     //each cell in this level
@@ -69,20 +65,14 @@ function Grid(stage, depth, matrix)
           len * Math.cos(Math.PI + 2 * Math.PI/3),
           len * Math.sin(Math.PI + 2 * Math.PI/3)
         ],
-        fillRed: 200,
-        fillGreen: 200,
-        fillBlue: 255,
-        fillAlpha: alpha,
         closed: true
       });
 
-      thisHex.origFillRed = 200;
-      thisHex.origFillGreen = 200;
-      thisHex.origFillBlue = 255;
-      thisHex.origFillAlpha = alpha;
       thisHex.gridID = this.cells.length;
       thisHex.level = level; 
       thisHex.wrapper = this;
+
+      thisHex.activePath = false;
 
       this.layer.add(thisHex);
       this.cells.push(thisHex);
@@ -103,7 +93,7 @@ function Grid(stage, depth, matrix)
 
   else
   {
-    //calculate neighbor cells for quick movement (if not in matrix already)
+    //calculate neighbor cells for quick movement (if not in matrix already)- this takes a long time
     for(var i = 0; i < this.cells.length; i++)
     {
       this.cells[i].neighbors = [];
@@ -128,12 +118,12 @@ Grid.prototype.attachToken = function(token)
 
 
   //attach events
-  for(var i = 0; i < this.cells.length; i++)
+  /*for(var i = 0; i < this.cells.length; i++)
   {
     this.cells[i].on('mousedown touchdown touchstart', function() {
       this.wrapper.token.moveTo(this.gridID);
     });
-  }
+  }*/
 }
 
 
@@ -176,35 +166,33 @@ Grid.prototype.findNearestExact = function(x, y)
 
 
 
-Grid.prototype.colorize = function(cid)
+Grid.prototype.setActivePaths = function(cid)
 {
   for(var i = 0; i < this.cells.length; i++)
   {
-    this.cells[i].fillRed(this.cells[i].origFillRed);
-    this.cells[i].fillGreen(this.cells[i].origFillGreen);
-    this.cells[i].fillBlue(this.cells[i].origFillBlue);
-    this.cells[i].fillAlpha(this.cells[i].origFillAlpha);
+    this.cells[i].activePath = false;
   }
 
   //choose a random orientation
   var start = Math.random() < 0.5 ? 0 : 1;
 
-  for(var i = start; i < 6; i += 2)
+  for(var i = 0; i < 6; i += 1)
   {
     var currID = cid;
     while(true)
     {
-      nextID = this.cells[currID].neighbors[i];
+      var nextID = this.cells[currID].neighbors[i];
       
       if(nextID === undefined || nextID == currID) break;
       else
       {
         currID = nextID;
-        this.cells[currID].fillAlpha(1);
+        this.cells[currID].activePath = true;
       }
 
     }
   }
 
+  _THEMER.applyTheme("default", _GRID, _TOKEN)
   this.layer.draw();
 }
