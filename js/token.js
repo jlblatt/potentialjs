@@ -1,13 +1,24 @@
-function Token(stage)
+function Token(stage, grid, themer)
 {
-  this.layer = new Kinetic.Layer();
   this.gridID = 0;
 
-  var len = _DIAMETER / Math.sqrt(3);
+  if(grid)
+  {
+    this.grid = grid;
+    grid.token = this;
+  }
+
+  if(themer)
+  {
+    this.themer = themer;
+    themer.token = this;
+  }
+  
+  var len = grid.cellDiameter / Math.sqrt(3);
 
   this.k = new Kinetic.Line({
-    x: _LENGTH/2,
-    y: _LENGTH/2,
+    x: stage.width()/2,
+    y: stage.height()/2,
     points: [
       len * Math.cos(0),
       len * Math.sin(0),
@@ -22,19 +33,13 @@ function Token(stage)
       len * Math.cos(Math.PI + 2 * Math.PI/3),
       len * Math.sin(Math.PI + 2 * Math.PI/3)
     ],
-    strokeWidth: _DIAMETER/10,
-    //draggable: true,
+    strokeWidth: grid.cellDiameter/10,
     closed: true
   });
 
   this.k.wrapper = this;
 
-  /*this.k.on("dragend", function() {
-    var pos = stage.getPointerPosition();
-    if(pos !== undefined) this.wrapper.moveToNearest(pos.x, pos.y);
-    else this.wrapper.moveTo(this.wrapper.gridID);
-  });*/
-
+  this.layer = new Kinetic.Layer();
   this.layer.add(this.k);
   stage.add(this.layer);
 }
@@ -51,12 +56,14 @@ Token.prototype.moveTo = function(cid)
   //this.grid.setActivePaths(cid);
 
   var thisToken = this;
+  thisToken.k.rotation(0);
+
   var tween = new Kinetic.Tween({
     node: thisToken.k, 
     duration: duration,
     x: this.grid.cells[cid].x(),
     y: this.grid.cells[cid].y(),
-    rotation: (thisToken.k.rotation() + 180) % 360
+    rotation: 120
   });
       
   tween.play();

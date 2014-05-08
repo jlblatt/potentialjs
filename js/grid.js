@@ -1,17 +1,30 @@
-function Grid(stage, depth, matrix)
+function Grid(stage, depth, matrix, token, themer)
 {
   this.stage = stage;
   this.depth = depth;
-  this.layer = new Kinetic.Layer();
+  
+  if(token)
+  {
+    this.token = token;
+    token.grid = this;
+  }
+
+  if(themer)
+  {
+    this.themer = themer;
+    themer.grid = this;
+  }
+
+  this.cellDiameter = stage.width() / (depth * 2);
 
   this.cells = [];
 
-  var len = _DIAMETER / Math.sqrt(3);
+  var len = this.cellDiameter / Math.sqrt(3);
 
   //setup our first cell
   var originHex = new Kinetic.Line({
-    x: _LENGTH/2,
-    y: _LENGTH/2,
+    x: stage.width()/2,
+    y: stage.height()/2,
     points: [
       len * Math.cos(0),
       len * Math.sin(0),
@@ -34,7 +47,9 @@ function Grid(stage, depth, matrix)
   originHex.wrapper = this;
 
   originHex.activePath = false;
+  originHex.infected = false;
 
+  this.layer = new Kinetic.Layer();
   this.layer.add(originHex);
   this.cells.push(originHex);
 
@@ -42,15 +57,15 @@ function Grid(stage, depth, matrix)
   for(var level = 1; level < depth; level++)
   {
     var alpha = 1 - ((1 / (depth)) * level);
-    var currCellCoords = [0, -level * _DIAMETER];
+    var currCellCoords = [0, -level * this.cellDiameter];
 
     //each cell in this level
     for(hex = 0; hex < level * 6; hex++)
     {
       //create the cell
       var thisHex = new Kinetic.Line({
-        x: currCellCoords[0] + (_LENGTH/2),
-        y: currCellCoords[1] + (_LENGTH/2),
+        x: currCellCoords[0] + (stage.width()/2),
+        y: currCellCoords[1] + (stage.height()/2),
         points: [
           len * Math.cos(0),
           len * Math.sin(0),
@@ -73,13 +88,14 @@ function Grid(stage, depth, matrix)
       thisHex.wrapper = this;
 
       thisHex.activePath = false;
+      thisHex.infected = false;
 
       this.layer.add(thisHex);
       this.cells.push(thisHex);
 
       //calculate coordinates of next cell (this is the fun part)
-      currCellCoords[0] += _DIAMETER * Math.cos((Math.floor(hex / level) * Math.PI/3) + Math.PI/6);
-      currCellCoords[1] += _DIAMETER * Math.sin((Math.floor(hex / level) * Math.PI/3) + Math.PI/6);
+      currCellCoords[0] += this.cellDiameter * Math.cos((Math.floor(hex / level) * Math.PI/3) + Math.PI/6);
+      currCellCoords[1] += this.cellDiameter * Math.sin((Math.floor(hex / level) * Math.PI/3) + Math.PI/6);
     }
   }
 
@@ -97,12 +113,12 @@ function Grid(stage, depth, matrix)
     for(var i = 0; i < this.cells.length; i++)
     {
       this.cells[i].neighbors = [];
-      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() - _DIAMETER));
-      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() - _DIAMETER * Math.sin(Math.PI/6)));
-      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() + _DIAMETER * Math.sin(Math.PI/6)));
-      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() + _DIAMETER));
-      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() + _DIAMETER * Math.sin(Math.PI/6)));
-      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - _DIAMETER * Math.cos(Math.PI/6), this.cells[i].y() - _DIAMETER * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() - this.cellDiameter));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + this.cellDiameter * Math.cos(Math.PI/6), this.cells[i].y() - this.cellDiameter * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() + this.cellDiameter * Math.cos(Math.PI/6), this.cells[i].y() + this.cellDiameter * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x(), this.cells[i].y() + this.cellDiameter));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - this.cellDiameter * Math.cos(Math.PI/6), this.cells[i].y() + this.cellDiameter * Math.sin(Math.PI/6)));
+      this.cells[i].neighbors.push(this.findNearestFuzzy(this.cells[i].x() - this.cellDiameter * Math.cos(Math.PI/6), this.cells[i].y() - this.cellDiameter * Math.sin(Math.PI/6)));
     }
   }
 
@@ -111,28 +127,11 @@ function Grid(stage, depth, matrix)
 
 
 
-Grid.prototype.attachToken = function(token)
-{
-  this.token = token;
-  token.grid = this;
-
-
-  //attach events
-  /*for(var i = 0; i < this.cells.length; i++)
-  {
-    this.cells[i].on('mousedown touchdown touchstart', function() {
-      this.wrapper.token.moveTo(this.gridID);
-    });
-  }*/
-}
-
-
-
 Grid.prototype.findNearestFuzzy = function(x, y)
 {
   for(var i = 0; i < this.cells.length; i++)
   {
-    if( (Math.abs(x - this.cells[i].x())) < _DIAMETER/1024 && (Math.abs(y - this.cells[i].y())) < _DIAMETER/1024 )
+    if( (Math.abs(x - this.cells[i].x())) < this.cellDiameter/1024 && (Math.abs(y - this.cells[i].y())) < this.cellDiameter/1024 )
     {
       return i;
     }
@@ -193,6 +192,6 @@ Grid.prototype.setActivePaths = function(cid)
     }
   }
 
-  _THEMER.applyTheme("default", _GRID, _TOKEN)
+  this.themer.applyTheme("default", _GRID, _TOKEN)
   this.layer.draw();
 }

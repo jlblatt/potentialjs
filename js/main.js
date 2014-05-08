@@ -1,32 +1,32 @@
 //TODO:
 //
 //  -rules
-//  -clean globals out of class functions
+//  -clean/refactor (always)
 //
 
 var st = new Date();
 
 var _LENGTH = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
 var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 5;
-var _DIAMETER = _LENGTH / (_GRIDDEPTH * 2);
 
 var _STAGE = new Kinetic.Stage({
   container: 'stage',
   width: _LENGTH,
   height: _LENGTH
 });
+_STAGE.origLength = _LENGTH;
 
-resizeStage(_STAGE, _LENGTH, 1);
+resizeStage(_STAGE, _STAGE.width(), 1);
 $(window).resize(function(){
   var newLength = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
-  resizeStage(_STAGE, newLength,  newLength / _LENGTH);
+  resizeStage(_STAGE, newLength,  newLength / _STAGE.origLength);
 });
 
 var _HITLAYER = new Kinetic.Layer();
 var _HITBOX = new Kinetic.Line({
   x: 0,
   y: 0,
-  points: [0,0,0,_LENGTH,_LENGTH,_LENGTH,_LENGTH,0],
+  points: [0,0,0,_STAGE.height(),_STAGE.width(),_STAGE.height(),_STAGE.width(),0],
   fillRed: 0,
   fillGreen: 0,
   fillBlue: 0,
@@ -51,7 +51,7 @@ _STAGE.on("mouseup touchup touchend", function(){
   {
     var dx = pos.x - _STAGE.xdown;
     var dy = pos.y - _STAGE.ydown;
-    if(Math.abs(dx) + Math.abs(dy) > _DIAMETER)
+    if(Math.abs(dx) + Math.abs(dy) > _GRID.cellDiameter)
     {
       //swipe - determine direction
       var theta = -Math.atan2(dy, dx) * 180 / Math.PI;
@@ -63,17 +63,23 @@ _STAGE.on("mouseup touchup touchend", function(){
       else if(theta < -120 && theta > -180) _TOKEN.moveByDir(4);
       else if(theta < 180 && theta > 120) _TOKEN.moveByDir(5);
     }
+
+    else
+    {
+      //tap
+
+    }
   }
 });
 
-var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX);
-var _TOKEN = new Token(_STAGE);
-_GRID.attachToken(_TOKEN);
-
-//var _INFECTION = new Infection(_GRID, _GRIDDEPTH);
 var _THEMER = new Themer();
-_THEMER.applyTheme('default', _GRID, _TOKEN);
-//setInterval(function(){ _THEMER.applyTheme('rainbow', _GRID, _TOKEN); }, 300);
+var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX, null, _THEMER);
+var _TOKEN = new Token(_STAGE, _GRID, _THEMER);
+
+var _INFECTION = new Infection(_GRID, _GRID.depth);
+
+_THEMER.applyTheme('radial_rainbow');
+setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
 
 var et = new Date();
 //console.log("init took: " + (et - st) + "ms");
@@ -83,32 +89,32 @@ var et = new Date();
 $(window).keydown(function(e)
 {
   var code = e.keyCode || e.which;
-  var keysToUse = [12, 33, 36, 37, 38, 39, 65, 68, 69, 81, 83, 87];
+  var keysToUse = [65, 68, 69, 81, 83, 87];
 
   if($.inArray(code, keysToUse) > -1) e.preventDefault();
 
-  //w or 8
-  if(code == 87 || code == 38)
+  //w
+  if(code == 87)
     _TOKEN.moveByDir(0);
   
-  //e or 9
-  else if(code == 69 || code == 33)
+  //e
+  else if(code == 69)
     _TOKEN.moveByDir(1);
   
-  //d or 6
-  else if(code == 68 || code == 39)
+  //d
+  else if(code == 68)
     _TOKEN.moveByDir(2);
 
-  //s or 5
-  else if(code == 83 || code == 12)
+  //s
+  else if(code == 83)
     _TOKEN.moveByDir(3);
 
-  //a or 4
-  else if(code == 65 || code == 37)
+  //a
+  else if(code == 65)
     _TOKEN.moveByDir(4);
 
-  //q or 7
-  else if(code == 81 || code == 36)
+  //q
+  else if(code == 81)
     _TOKEN.moveByDir(5);
 
 });
