@@ -3,9 +3,11 @@ function Grid(stage, depth, matrix, token, themer)
   this.stage = stage;
   this.depth = depth;
   
+  this.tokens = [];
+
   if(token)
   {
-    this.token = token;
+    this.currToken = token;
     token.grid = this;
   }
 
@@ -46,7 +48,6 @@ function Grid(stage, depth, matrix, token, themer)
   originHex.level = 0;
   originHex.wrapper = this;
 
-  originHex.activePath = false;
   originHex.infected = false;
 
   this.layer = new Kinetic.Layer();
@@ -87,7 +88,6 @@ function Grid(stage, depth, matrix, token, themer)
       thisHex.level = level; 
       thisHex.wrapper = this;
 
-      thisHex.activePath = false;
       thisHex.infected = false;
 
       this.layer.add(thisHex);
@@ -127,6 +127,16 @@ function Grid(stage, depth, matrix, token, themer)
 
 
 
+Grid.prototype.captureToken = function()
+{
+  this.tokens.push(this.currToken);
+  this.currToken = new Token(this.stage, this); 
+  this.themer.refreshTheme();
+  return this.currToken;
+}
+
+
+
 Grid.prototype.findNearestFuzzy = function(x, y)
 {
   for(var i = 0; i < this.cells.length; i++)
@@ -160,38 +170,4 @@ Grid.prototype.findNearestExact = function(x, y)
   }
 
   return closestIndex;
-}
-
-
-
-
-Grid.prototype.setActivePaths = function(cid)
-{
-  for(var i = 0; i < this.cells.length; i++)
-  {
-    this.cells[i].activePath = false;
-  }
-
-  //choose a random orientation
-  var start = Math.random() < 0.5 ? 0 : 1;
-
-  for(var i = 0; i < 6; i += 1)
-  {
-    var currID = cid;
-    while(true)
-    {
-      var nextID = this.cells[currID].neighbors[i];
-      
-      if(nextID === undefined || nextID == currID) break;
-      else
-      {
-        currID = nextID;
-        this.cells[currID].activePath = true;
-      }
-
-    }
-  }
-
-  this.themer.applyTheme("default", _GRID, _TOKEN)
-  this.layer.draw();
 }

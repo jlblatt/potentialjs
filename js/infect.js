@@ -27,18 +27,11 @@ Infection.prototype.spawn = function()
   if(!cell.infected)
   {
     cell.infected = true;
-    cell.fillRed(255);
-    cell.fillGreen(255);
-    cell.fillBlue(255);
-    cell.fillAlpha(.5);
 
     var tween = new Kinetic.Tween({
       node: cell, 
-      duration: this.aggro,
-      fillRed: 0,
-      fillGreen: 0,
-      fillBlue: 0,
-      fillAlpha: 0
+      duration: this.aggro / 2,
+      fillAlpha: .2
     });
           
     tween.play();

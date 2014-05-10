@@ -2,6 +2,7 @@
 //
 //  -rules
 //  -clean/refactor (always)
+//  -do we need jquery?
 //
 
 var st = new Date();
@@ -67,19 +68,20 @@ _STAGE.on("mouseup touchup touchend", function(){
     else
     {
       //tap
-
+      _TOKEN = _GRID.captureToken();
     }
   }
 });
 
 var _THEMER = new Themer();
 var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX, null, _THEMER);
-var _TOKEN = new Token(_STAGE, _GRID, _THEMER);
+var _TOKEN = new Token(_STAGE, _GRID);
 
-var _INFECTION = new Infection(_GRID, _GRID.depth);
+//var _INFECTION = new Infection(_GRID, _GRID.depth);
 
-_THEMER.applyTheme('radial_rainbow');
-setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
+_THEMER.applyTheme('default');
+//_THEMER.applyTheme('radial_rainbow');
+//setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
 
 var et = new Date();
 //console.log("init took: " + (et - st) + "ms");
@@ -89,7 +91,7 @@ var et = new Date();
 $(window).keydown(function(e)
 {
   var code = e.keyCode || e.which;
-  var keysToUse = [65, 68, 69, 81, 83, 87];
+  var keysToUse = [32, 65, 68, 69, 81, 83, 87];
 
   if($.inArray(code, keysToUse) > -1) e.preventDefault();
 
@@ -116,5 +118,9 @@ $(window).keydown(function(e)
   //q
   else if(code == 81)
     _TOKEN.moveByDir(5);
+
+  //space
+  else if(code == 32)
+    _TOKEN = _GRID.captureToken();
 
 });

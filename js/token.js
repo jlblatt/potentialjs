@@ -1,18 +1,9 @@
-function Token(stage, grid, themer)
+function Token(stage, grid)
 {
   this.gridID = 0;
 
-  if(grid)
-  {
-    this.grid = grid;
-    grid.token = this;
-  }
-
-  if(themer)
-  {
-    this.themer = themer;
-    themer.token = this;
-  }
+  this.grid = grid;
+  grid.currToken = this;
   
   var len = grid.cellDiameter / Math.sqrt(3);
 
@@ -39,9 +30,7 @@ function Token(stage, grid, themer)
 
   this.k.wrapper = this;
 
-  this.layer = new Kinetic.Layer();
-  this.layer.add(this.k);
-  stage.add(this.layer);
+  grid.layer.add(this.k); 
 }
 
 Token.prototype.moveTo = function(cid)
@@ -52,8 +41,6 @@ Token.prototype.moveTo = function(cid)
   var dx = this.grid.cells[cid].x() - this.k.x();
   var dy = this.grid.cells[cid].y() - this.k.y();
   var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / 800;
-
-  //this.grid.setActivePaths(cid);
 
   var thisToken = this;
   thisToken.k.rotation(0);
