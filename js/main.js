@@ -57,35 +57,34 @@ _STAGE.on("mouseup touchup touchend", function(){
       //swipe - determine direction
       var theta = -Math.atan2(dy, dx) * 180 / Math.PI;
       
-      if(theta < 120 && theta > 60) _TOKEN.moveByDir(0);
-      else if(theta < 60 && theta > 0) _TOKEN.moveByDir(1);
-      else if(theta < 0 && theta > -60) _TOKEN.moveByDir(2);
-      else if(theta < -60 && theta > -120) _TOKEN.moveByDir(3);
-      else if(theta < -120 && theta > -180) _TOKEN.moveByDir(4);
-      else if(theta < 180 && theta > 120) _TOKEN.moveByDir(5);
+      if(theta < 120 && theta > 60) _GRID.currToken.moveByDir(0);
+      else if(theta < 60 && theta > 0) _GRID.currToken.moveByDir(1);
+      else if(theta < 0 && theta > -60) _GRID.currToken.moveByDir(2);
+      else if(theta < -60 && theta > -120) _GRID.currToken.moveByDir(3);
+      else if(theta < -120 && theta > -180) _GRID.currToken.moveByDir(4);
+      else if(theta < 180 && theta > 120) _GRID.currToken.moveByDir(5);
     }
 
     else
     {
       //tap
-      _TOKEN = _GRID.captureToken();
+      _GRID.captureToken();
     }
   }
 });
 
 var _THEMER = new Themer();
 var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX, null, _THEMER);
-var _TOKEN = new Token(_STAGE, _GRID);
+_GRID.generateToken();
 
 //var _INFECTION = new Infection(_GRID, _GRID.depth);
 
-_THEMER.applyTheme('default');
+_THEMER.applyTheme('forest');
 //_THEMER.applyTheme('radial_rainbow');
 //setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
 
 var et = new Date();
 //console.log("init took: " + (et - st) + "ms");
-
 
 
 $(window).keydown(function(e)
@@ -97,30 +96,30 @@ $(window).keydown(function(e)
 
   //w
   if(code == 87)
-    _TOKEN.moveByDir(0);
+    _GRID.currToken.moveByDir(0);
   
   //e
   else if(code == 69)
-    _TOKEN.moveByDir(1);
+    _GRID.currToken.moveByDir(1);
   
   //d
   else if(code == 68)
-    _TOKEN.moveByDir(2);
+    _GRID.currToken.moveByDir(2);
 
   //s
   else if(code == 83)
-    _TOKEN.moveByDir(3);
+    _GRID.currToken.moveByDir(3);
 
   //a
   else if(code == 65)
-    _TOKEN.moveByDir(4);
+    _GRID.currToken.moveByDir(4);
 
   //q
   else if(code == 81)
-    _TOKEN.moveByDir(5);
+    _GRID.currToken.moveByDir(5);
 
   //space
   else if(code == 32)
-    _TOKEN = _GRID.captureToken();
+    _GRID.captureToken();
 
 });

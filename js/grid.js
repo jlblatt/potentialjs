@@ -49,6 +49,7 @@ function Grid(stage, depth, matrix, token, themer)
   originHex.wrapper = this;
 
   originHex.infected = false;
+  originHex.holding = false;
 
   this.layer = new Kinetic.Layer();
   this.layer.add(originHex);
@@ -89,6 +90,7 @@ function Grid(stage, depth, matrix, token, themer)
       thisHex.wrapper = this;
 
       thisHex.infected = false;
+      thisHex.holding = false;
 
       this.layer.add(thisHex);
       this.cells.push(thisHex);
@@ -129,10 +131,33 @@ function Grid(stage, depth, matrix, token, themer)
 
 Grid.prototype.captureToken = function()
 {
-  this.tokens.push(this.currToken);
-  this.currToken = new Token(this.stage, this); 
-  this.themer.refreshTheme();
-  return this.currToken;
+  if(this.currToken.gridID != 0)
+  {
+    this.cells[this.currToken.gridID].holding = true;
+    this.tokens.push(this.currToken);
+    this.generateToken();
+    this.themer.refreshTheme();
+  }
+}
+
+
+
+
+Grid.prototype.generateToken = function()
+{
+  this.currToken = new Token(this.stage.width() / (2 * this.stage.scaleX()), this.stage.height() / (2 * this.stage.scaleY()), this.cellDiameter);
+  this.currToken.grid = this;
+  this.layer.add(this.currToken.k);
+
+  var tween = new Kinetic.Tween({
+    node: this.currToken.k, 
+    duration: .2,
+    scaleX: 1,
+    scaleY: 1,
+    rotation: 0
+  });
+      
+  tween.play();
 }
 
 

@@ -24,14 +24,14 @@ function Themer()
     this.themes['crimson'] = new Theme({
         name: "crimson",
         defaultGridFill: [255, 100, 100, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
-        defaultTokenFill: [255, 100, 100, 1],
+        defaultTokenFill: [255, 150, 150, 1],
         defaultTokenStroke: [255, 210, 210, 1]
     });
 
     this.themes['forest'] = new Theme({
         name: "forest",
         defaultGridFill: [100, 255, 100, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
-        defaultTokenFill: [100, 255, 100, 1],
+        defaultTokenFill: [150, 255, 150, 1],
         defaultTokenStroke: [210, 255, 210, 1]
     });
 

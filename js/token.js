@@ -1,15 +1,12 @@
-function Token(stage, grid)
+function Token(x, y, diameter)
 {
   this.gridID = 0;
-
-  this.grid = grid;
-  grid.currToken = this;
   
-  var len = grid.cellDiameter / Math.sqrt(3);
+  var len = diameter / Math.sqrt(3);
 
   this.k = new Kinetic.Line({
-    x: stage.width()/2,
-    y: stage.height()/2,
+    x: x,
+    y: y,
     points: [
       len * Math.cos(0),
       len * Math.sin(0),
@@ -24,13 +21,12 @@ function Token(stage, grid)
       len * Math.cos(Math.PI + 2 * Math.PI/3),
       len * Math.sin(Math.PI + 2 * Math.PI/3)
     ],
-    strokeWidth: grid.cellDiameter/10,
-    closed: true
+    strokeWidth: diameter/10,
+    closed: true,
+    scaleX: 0,
+    scaleY: 0,
+    rotation: -120
   });
-
-  this.k.wrapper = this;
-
-  grid.layer.add(this.k); 
 }
 
 Token.prototype.moveTo = function(cid)
@@ -56,15 +52,15 @@ Token.prototype.moveTo = function(cid)
   tween.play();
 }
 
-Token.prototype.moveToNearest = function(x, y)
+Token.prototype.moveToNearest = function(x, y, grid)
 {
-  var nearestID = this.grid.findNearestExact(x, y);
+  var nearestID = grid.findNearestExact(x, y);
 
   if(nearestID === undefined) return;
   
   this.gridID = nearestID;
-  this.k.x(this.grid.cells[nearestID].x());
-  this.k.y(this.grid.cells[nearestID].y());
+  this.k.x(grid.cells[nearestID].x());
+  this.k.y(grid.cells[nearestID].y());
   this.layer.draw();
 }
 
@@ -75,7 +71,7 @@ Token.prototype.moveByDir = function(dir)
   {
     var nextID = this.grid.cells[currID].neighbors[dir];
     
-    if(nextID === undefined || nextID == currID) break;
+    if(nextID === undefined || nextID == currID  || this.grid.cells[nextID].holding) break;
     else
     {
       currID = nextID;
