@@ -1,6 +1,8 @@
 //TODO:
 //
 //  -rules
+//  -sounds
+//  -stop wasteful calls to refreshTheme (implement colors on token creation)
 //  -clean/refactor (always)
 //  -do we need jquery?
 //
@@ -36,6 +38,9 @@ var _HITBOX = new Kinetic.Line({
 });
 _HITLAYER.add(_HITBOX);
 _STAGE.add(_HITLAYER);
+
+var _ELEMENTS = ["fire", "water", "air", "earth", "light", "dark"];
+var _ICONS = loadIcons();
 
 $(window).on("mousedown touchstart", function(e){
   var posX, posY;
@@ -123,7 +128,7 @@ _GRID.generateToken();
 
 _THEMER.applyTheme('bone');
 //_THEMER.applyTheme('radial_rainbow');
-//setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
+//_THEMER.currentInterval = setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
 
 var et = new Date();
 //console.log("init took: " + (et - st) + "ms");

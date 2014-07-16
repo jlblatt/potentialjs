@@ -1,4 +1,4 @@
-function Token(x, y, diameter)
+function Token(x, y, diameter, element)
 {
   this.gridID = 0;
   
@@ -21,12 +21,31 @@ function Token(x, y, diameter)
       len * Math.cos(Math.PI + 2 * Math.PI/3),
       len * Math.sin(Math.PI + 2 * Math.PI/3)
     ],
-    strokeWidth: diameter/10,
     closed: true,
     scaleX: 0,
     scaleY: 0,
-    rotation: -120
+    rotation: -120,
+    strokeWidth: 1,
+    stroke: 'white'
   });
+
+  if(element)
+  {
+    this.element = element;
+    this.icon = new Kinetic.Image({
+      x: x,
+      y: y,
+      offsetX: (len / 2),
+      offsetY: (len / 2),
+      image: _ICONS[element],
+      width: len,
+      height: len,
+      scaleX: 0,
+      scaleY: 0,
+      rotation: -120,
+      opacity: .9
+    });
+  }
 }
 
 Token.prototype.moveTo = function(cid)
@@ -36,20 +55,101 @@ Token.prototype.moveTo = function(cid)
 
   var dx = this.grid.cells[cid].x() - this.k.x();
   var dy = this.grid.cells[cid].y() - this.k.y();
-  var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / (this.grid.stage.origLength * 2);
+  var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / (this.grid.stage.origLength * 1.5);
 
   var thisToken = this;
-  thisToken.k.rotation(0);
+  thisToken.k.rotation(-120);
 
-  var tween = new Kinetic.Tween({
+  var tokenTween = new Kinetic.Tween({
     node: thisToken.k, 
     duration: duration,
+    easing: Kinetic.Easings.BackEaseOut,
     x: this.grid.cells[cid].x(),
     y: this.grid.cells[cid].y(),
-    rotation: 120
+    rotation: 0
   });
+
+  if(thisToken.element)
+  {
+    var iconTween = new Kinetic.Tween({
+      node: thisToken.icon, 
+      duration: duration,
+      easing: Kinetic.Easings.BackEaseOut,
+      x: this.grid.cells[cid].x(),
+      y: this.grid.cells[cid].y()
+    });
+        
+    iconTween.play();
+  }
+
+  tokenTween.play();
+}
+
+Token.prototype.collide = function(cid)
+{
+  if(cid === undefined) return;
+
+  var thisToken = this;
+  var otherToken = this.grid.cells[cid].heldToken;
+
+  if(combineElements(thisToken.element, otherToken.element) == -1)
+  {
+    var dx = this.grid.cells[cid].x() - this.k.x();
+    var dy = this.grid.cells[cid].y() - this.k.y();
+    var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / (this.grid.stage.origLength * 1.5);
+
+    setTimeout(function() {
+
+      var thisTokenTween = new Kinetic.Tween({
+        node: thisToken.k, 
+        duration: duration * 3,
+        easing: Kinetic.Easings.BackEaseIn,
+        rotation: 180,
+        scaleX: 0,
+        scaleY: 0,
+        opacity: 0
+      });
+
+      var thisIconTween = new Kinetic.Tween({
+        node: thisToken.icon, 
+        duration: duration * 3,
+        easing: Kinetic.Easings.EaseOut,
+        scaleX: 0,
+        scaleY: 0,
+        opacity: 0
+      });
+
+      var otherTokenTween = new Kinetic.Tween({
+        node: otherToken.k, 
+        duration: duration * 3,
+        easing: Kinetic.Easings.BackEaseIn,
+        rotation: 180,
+        scaleX: 0,
+        scaleY: 0,
+        opacity: 0
+      });
+
+      var otherIconTween = new Kinetic.Tween({
+        node: otherToken.icon, 
+        duration: duration * 3,
+        easing: Kinetic.Easings.EaseOut,
+        scaleX: 0,
+        scaleY: 0,
+        opacity: 0
+      });
       
-  tween.play();
+      thisTokenTween.play();
+      thisIconTween.play();
+      otherTokenTween.play();
+      otherIconTween.play();
+
+      thisToken.grid.cells[cid].holding = false;
+      thisToken.grid.cells[cid].heldToken = undefined;
+      thisToken.grid.generateToken();
+      thisToken.grid.themer.refreshTheme();
+
+    }, duration);
+  }
 }
 
 Token.prototype.moveToNearest = function(x, y, grid)
@@ -71,11 +171,16 @@ Token.prototype.moveByDir = function(dir)
   {
     var nextID = this.grid.cells[currID].neighbors[dir];
     
-    if(nextID === undefined || nextID == currID  || this.grid.cells[nextID].holding) break;
+    if(nextID === undefined || nextID == currID) break;
+    else if(this.grid.cells[nextID].holding)
+    {
+      this.collide(nextID);
+      break;
+    }
     else
     {
       currID = nextID;
-      if(currID == 0) break;
+      //if(currID == 0) break;
     }
   }
 

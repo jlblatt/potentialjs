@@ -2,8 +2,6 @@ function Grid(stage, depth, matrix, token, themer)
 {
   this.stage = stage;
   this.depth = depth;
-  
-  this.tokens = [];
 
   if(token)
   {
@@ -49,6 +47,7 @@ function Grid(stage, depth, matrix, token, themer)
   originHex.wrapper = this;
 
   originHex.holding = false;
+  originHex.heldToken = undefined;
 
   this.layer = new Kinetic.Layer();
   this.layer.add(originHex);
@@ -89,6 +88,7 @@ function Grid(stage, depth, matrix, token, themer)
       thisHex.wrapper = this;
 
       thisHex.holding = false;
+      thisHex.heldToken = undefined;
 
       this.layer.add(thisHex);
       this.cells.push(thisHex);
@@ -132,7 +132,7 @@ Grid.prototype.captureToken = function()
   if(this.currToken.gridID != 0)
   {
     this.cells[this.currToken.gridID].holding = true;
-    this.tokens.push(this.currToken);
+    this.cells[this.currToken.gridID].heldToken = this.currToken;
     this.generateToken();
     this.themer.refreshTheme();
   }
@@ -143,11 +143,12 @@ Grid.prototype.captureToken = function()
 
 Grid.prototype.generateToken = function()
 {
-  this.currToken = new Token(this.stage.width() / (2 * this.stage.scaleX()), this.stage.height() / (2 * this.stage.scaleY()), this.cellDiameter);
+  var ele = _ELEMENTS[Math.floor(Math.random() * _ELEMENTS.length)];
+  this.currToken = new Token(this.stage.width() / (2 * this.stage.scaleX()), this.stage.height() / (2 * this.stage.scaleY()), this.cellDiameter, ele);
   this.currToken.grid = this;
   this.layer.add(this.currToken.k);
 
-  var tween = new Kinetic.Tween({
+  var tokenTween = new Kinetic.Tween({
     node: this.currToken.k, 
     duration: .2,
     scaleX: 1,
@@ -155,7 +156,21 @@ Grid.prototype.generateToken = function()
     rotation: 0
   });
       
-  tween.play();
+  tokenTween.play();
+
+  if(this.currToken.element)
+  {
+    this.layer.add(this.currToken.icon);
+    var iconTween = new Kinetic.Tween({
+      node: this.currToken.icon, 
+      duration: .2,
+      scaleX: 1,
+      scaleY: 1,
+      rotation: 0
+    });
+        
+    iconTween.play();
+  }
 }
 
 

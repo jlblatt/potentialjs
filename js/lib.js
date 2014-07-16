@@ -14,15 +14,38 @@ function resizeStage(stage, length, scale)
   stage.draw();
 }
 
-//http://stackoverflow.com/a/10142256
-Array.prototype.shuffle = function() {
-  var i = this.length, j, temp;
-  if ( i == 0 ) return this;
-  while ( --i ) {
-     j = Math.floor( Math.random() * ( i + 1 ) );
-     temp = this[i];
-     this[i] = this[j];
-     this[j] = temp;
+function loadIcons()
+{
+  var imgs = {};
+
+  for(var i = 0; i < _ELEMENTS.length; i++)
+  {
+    var img = new Image(); img.src = 'img/elements/png/white/' + _ELEMENTS[i] + '.png';
+    imgs[_ELEMENTS[i]] = img;
   }
-  return this;
+
+  return imgs;
+}
+
+function combineElements(ele1, ele2)
+{
+  if(
+    (ele1 == "fire"  && ele2 == "water") ||
+    (ele1 == "water" && ele2 == "fire")  ||
+    (ele1 == "earth" && ele2 == "air")   ||
+    (ele1 == "air"   && ele2 == "earth") ||
+    (ele1 == "dark"  && ele2 == "light") ||
+    (ele1 == "light" && ele2 == "dark")
+  ) return -1
+  
+  else if(
+    (ele1 == "fire"  && ele2 == "fire") ||
+    (ele1 == "water" && ele2 == "water")  ||
+    (ele1 == "earth" && ele2 == "earth")   ||
+    (ele1 == "air"   && ele2 == "air") ||
+    (ele1 == "dark"  && ele2 == "dark") ||
+    (ele1 == "light" && ele2 == "light")  
+  ) return 1;
+  
+  else return 0;
 }
