@@ -48,7 +48,6 @@ function Grid(stage, depth, matrix, token, themer)
   originHex.level = 0;
   originHex.wrapper = this;
 
-  originHex.infected = false;
   originHex.holding = false;
 
   this.layer = new Kinetic.Layer();
@@ -89,7 +88,6 @@ function Grid(stage, depth, matrix, token, themer)
       thisHex.level = level; 
       thisHex.wrapper = this;
 
-      thisHex.infected = false;
       thisHex.holding = false;
 
       this.layer.add(thisHex);

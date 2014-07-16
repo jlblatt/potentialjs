@@ -12,6 +12,7 @@ function Themer()
 
     this.currentTheme;
     this.currentColor = [];
+    this.currentInterval;
     
     this.themes['default'] = new Theme({
         name: "default",
@@ -33,6 +34,13 @@ function Themer()
         defaultGridFill: [100, 255, 100, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
         defaultTokenFill: [150, 255, 150, 1],
         defaultTokenStroke: [210, 255, 210, 1]
+    });
+
+    this.themes['bone'] = new Theme({
+        name: "bone",
+        defaultGridFill: [200, 200, 200, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
+        defaultTokenFill: [245, 245, 245, 1],
+        defaultTokenStroke: [210, 210, 210, 1]
     });
 
     this.themes['random_rainbow'] = new Theme({
@@ -82,7 +90,7 @@ Themer.prototype.applyTheme = function(themeName)
             this.grid.cells[i].fillRed(   $.isFunction(t.defaultGridFill[0]) ? t.defaultGridFill[0](this.grid.cells[i]) : t.defaultGridFill[0]);
             this.grid.cells[i].fillGreen( $.isFunction(t.defaultGridFill[1]) ? t.defaultGridFill[1](this.grid.cells[i]) : t.defaultGridFill[1]);
             this.grid.cells[i].fillBlue(  $.isFunction(t.defaultGridFill[2]) ? t.defaultGridFill[2](this.grid.cells[i]) : t.defaultGridFill[2]);
-            if(!this.grid.cells[i].infected) this.grid.cells[i].fillAlpha( $.isFunction(t.defaultGridFill[3]) ? t.defaultGridFill[3](this.grid.cells[i]) : t.defaultGridFill[3]);
+            this.grid.cells[i].fillAlpha( $.isFunction(t.defaultGridFill[3]) ? t.defaultGridFill[3](this.grid.cells[i]) : t.defaultGridFill[3]);
         }
 
         //update token colors

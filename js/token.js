@@ -36,7 +36,7 @@ Token.prototype.moveTo = function(cid)
 
   var dx = this.grid.cells[cid].x() - this.k.x();
   var dy = this.grid.cells[cid].y() - this.k.y();
-  var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / 800;
+  var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / (this.grid.stage.origLength * 2);
 
   var thisToken = this;
   thisToken.k.rotation(0);
