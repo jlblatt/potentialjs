@@ -6,13 +6,16 @@ function Theme(settings)
     }
 }
 
-function Themer()
+function Themer(themeName)
 {
     this.themes = {}
 
     this.currentTheme;
     this.currentColor = [];
     this.currentInterval;
+
+    this.flashInt;
+    this.flashCount = 0;
 
     var standardElementalTokenFills = {
         fire: [222, 145, 137, 1],
@@ -25,7 +28,7 @@ function Themer()
     
     this.themes['default'] = new Theme({
         name: "default",
-        defaultGridFill: [200, 200, 255, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [200, 200, 255, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
         defaultTokenFill: [200, 200, 255, 1],
         elementalTokenFills: standardElementalTokenFills
     });
@@ -33,21 +36,21 @@ function Themer()
 
     this.themes['crimson'] = new Theme({
         name: "crimson",
-        defaultGridFill: [255, 100, 100, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [255, 100, 100, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
         defaultTokenFill: [255, 150, 150, 1],
         elementalTokenFills: standardElementalTokenFills
     });
 
     this.themes['forest'] = new Theme({
         name: "forest",
-        defaultGridFill: [100, 255, 100, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [100, 255, 100, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
         defaultTokenFill: [150, 255, 150, 1],
         elementalTokenFills: standardElementalTokenFills
     });
 
     this.themes['bone'] = new Theme({
         name: "bone",
-        defaultGridFill: [200, 200, 200, function(cell){ return 1 - ((1 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [200, 200, 200, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
         defaultTokenFill: [245, 245, 245, 1],
         elementalTokenFills: standardElementalTokenFills
     });
@@ -67,6 +70,8 @@ function Themer()
         defaultTokenFill: [240, 240, 240, .8],
         elementalTokenFills: standardElementalTokenFills
     });
+
+    this.currentTheme = this.themes[themeName];
 }
 
 Themer.prototype.randomSwatch = function()
@@ -81,6 +86,53 @@ Themer.prototype.leveledSwatch = function()
     return this.currentColor.shift();
 }
 
+
+Themer.prototype.refreshToken = function()
+{
+    var t = this.currentTheme;
+    var k = this.grid.currToken.k;
+
+    if(this.grid.currToken.element)
+    {
+        var ele = this.grid.currToken.element;
+        k.fillRed(t.elementalTokenFills[ele][0]);
+        k.fillGreen(t.elementalTokenFills[ele][1]);
+        k.fillBlue(t.elementalTokenFills[ele][2]);
+        k.fillAlpha(t.elementalTokenFills[ele][3]);
+    }
+    else if(!this.flashInt)
+    {
+        var themerInstance = this;
+        this.flashInt = setInterval(function() {
+            themerInstance.grid.currToken.k.fillRed(themerInstance.currentTheme.elementalTokenFills[_ELEMENTS[themerInstance.flashCount]][0]);
+            themerInstance.grid.currToken.k.fillGreen(themerInstance.currentTheme.elementalTokenFills[_ELEMENTS[themerInstance.flashCount]][1]);
+            themerInstance.grid.currToken.k.fillBlue(themerInstance.currentTheme.elementalTokenFills[_ELEMENTS[themerInstance.flashCount]][2]);
+            themerInstance.grid.currToken.k.fillAlpha(themerInstance.currentTheme.elementalTokenFills[_ELEMENTS[themerInstance.flashCount]][3]);
+            themerInstance.flashCount++;
+            if(themerInstance.flashCount > _ELEMENTS.length - 2) themerInstance.flashCount = 0;
+            themerInstance.refreshToken();
+        }, 100);
+    }
+
+    this.grid.layer.draw();
+}
+
+Themer.prototype.stopTokenFlashing = function()
+{
+    if(this.flashInt)
+    {
+        clearInterval(this.flashInt);
+        this.flashInt = undefined;
+        this.flastCount = 0;
+
+        var k = this.grid.currToken.k;
+        k.fillRed(this.currentTheme.defaultTokenFill[0]);
+        k.fillGreen(this.currentTheme.defaultTokenFill[1]);
+        k.fillBlue(this.currentTheme.defaultTokenFill[2]);
+        k.fillAlpha(this.currentTheme.defaultTokenFill[3]);
+    }
+}
+
 Themer.prototype.refreshTheme = function()
 {
     this.applyTheme(this.currentTheme.name);
@@ -88,7 +140,7 @@ Themer.prototype.refreshTheme = function()
 
 Themer.prototype.applyTheme = function(themeName)
 {
-    if(themeName in this.themes)
+    if(themeName in this.themes && this.grid)
     {
         this.currentTheme = this.themes[themeName];
         var t = this.currentTheme;
@@ -96,47 +148,50 @@ Themer.prototype.applyTheme = function(themeName)
         //update grid colors
         for(var i = 0; i < this.grid.cells.length; i++)
         {
-            this.grid.cells[i].fillRed(   $.isFunction(t.defaultGridFill[0]) ? t.defaultGridFill[0](this.grid.cells[i]) : t.defaultGridFill[0]);
-            this.grid.cells[i].fillGreen( $.isFunction(t.defaultGridFill[1]) ? t.defaultGridFill[1](this.grid.cells[i]) : t.defaultGridFill[1]);
-            this.grid.cells[i].fillBlue(  $.isFunction(t.defaultGridFill[2]) ? t.defaultGridFill[2](this.grid.cells[i]) : t.defaultGridFill[2]);
-            this.grid.cells[i].fillAlpha( $.isFunction(t.defaultGridFill[3]) ? t.defaultGridFill[3](this.grid.cells[i]) : t.defaultGridFill[3]);
+            var c = this.grid.cells[i];
+
+            c.fillRed(   $.isFunction(t.defaultGridFill[0]) ? t.defaultGridFill[0](c) : t.defaultGridFill[0]);
+            c.fillGreen( $.isFunction(t.defaultGridFill[1]) ? t.defaultGridFill[1](c) : t.defaultGridFill[1]);
+            c.fillBlue(  $.isFunction(t.defaultGridFill[2]) ? t.defaultGridFill[2](c) : t.defaultGridFill[2]);
+            c.fillAlpha( $.isFunction(t.defaultGridFill[3]) ? t.defaultGridFill[3](c) : t.defaultGridFill[3]);
 
             //check for a token on this cell and color that too
-            if(this.grid.cells[i].holding)
+            if(c.holding)
             {
-                if(this.grid.cells[i].heldToken.element)
+                if(c.heldToken.element)
                 { 
-                    var ele = this.grid.cells[i].heldToken.element;
-                    this.grid.cells[i].heldToken.k.fillRed(   $.isFunction(t.elementalTokenFills[ele][0]) ? t.elementalTokenFills[ele][0](this.grid.cells[i].heldToken) : t.elementalTokenFills[ele][0]);
-                    this.grid.cells[i].heldToken.k.fillGreen( $.isFunction(t.elementalTokenFills[ele][1]) ? t.elementalTokenFills[ele][1](this.grid.cells[i].heldToken) : t.elementalTokenFills[ele][1]);
-                    this.grid.cells[i].heldToken.k.fillBlue(  $.isFunction(t.elementalTokenFills[ele][2]) ? t.elementalTokenFills[ele][2](this.grid.cells[i].heldToken) : t.elementalTokenFills[ele][2]);
-                    this.grid.cells[i].heldToken.k.fillAlpha( $.isFunction(t.elementalTokenFills[ele][3]) ? t.elementalTokenFills[ele][3](this.grid.cells[i].heldToken) : t.elementalTokenFills[ele][3]);
+                    var ele = c.heldToken.element;
+                    c.heldToken.k.fillRed(   $.isFunction(t.elementalTokenFills[ele][0]) ? t.elementalTokenFills[ele][0](c.heldToken) : t.elementalTokenFills[ele][0]);
+                    c.heldToken.k.fillGreen( $.isFunction(t.elementalTokenFills[ele][1]) ? t.elementalTokenFills[ele][1](c.heldToken) : t.elementalTokenFills[ele][1]);
+                    c.heldToken.k.fillBlue(  $.isFunction(t.elementalTokenFills[ele][2]) ? t.elementalTokenFills[ele][2](c.heldToken) : t.elementalTokenFills[ele][2]);
+                    c.heldToken.k.fillAlpha( $.isFunction(t.elementalTokenFills[ele][3]) ? t.elementalTokenFills[ele][3](c.heldToken) : t.elementalTokenFills[ele][3]);
                 }
                 else
                 {
-                    this.grid.cells[i].heldToken.k.fillRed(   $.isFunction(t.defaultTokenFill[0]) ? t.defaultTokenFill[0](this.grid.cells[i].heldToken) : t.defaultTokenFill[0]);
-                    this.grid.cells[i].heldToken.k.fillGreen( $.isFunction(t.defaultTokenFill[1]) ? t.defaultTokenFill[1](this.grid.cells[i].heldToken) : t.defaultTokenFill[1]);
-                    this.grid.cells[i].heldToken.k.fillBlue(  $.isFunction(t.defaultTokenFill[2]) ? t.defaultTokenFill[2](this.grid.cells[i].heldToken) : t.defaultTokenFill[2]);
-                    this.grid.cells[i].heldToken.k.fillAlpha( $.isFunction(t.defaultTokenFill[3]) ? t.defaultTokenFill[3](this.grid.cells[i].heldToken) : t.defaultTokenFill[3]);
+                    c.heldToken.k.fillRed(   $.isFunction(t.defaultTokenFill[0]) ? t.defaultTokenFill[0](c.heldToken) : t.defaultTokenFill[0]);
+                    c.heldToken.k.fillGreen( $.isFunction(t.defaultTokenFill[1]) ? t.defaultTokenFill[1](c.heldToken) : t.defaultTokenFill[1]);
+                    c.heldToken.k.fillBlue(  $.isFunction(t.defaultTokenFill[2]) ? t.defaultTokenFill[2](c.heldToken) : t.defaultTokenFill[2]);
+                    c.heldToken.k.fillAlpha( $.isFunction(t.defaultTokenFill[3]) ? t.defaultTokenFill[3](c.heldToken) : t.defaultTokenFill[3]);
                 }
             }
         }
 
         //update token colors
+        var k = this.grid.currToken.k;
         if(this.grid.currToken.element)
         {
             var ele = this.grid.currToken.element;
-            this.grid.currToken.k.fillRed(   $.isFunction(t.elementalTokenFills[ele][0]) ? t.elementalTokenFills[ele][0](this.grid.currToken) : t.elementalTokenFills[ele][0]);
-            this.grid.currToken.k.fillGreen( $.isFunction(t.elementalTokenFills[ele][1]) ? t.elementalTokenFills[ele][1](this.grid.currToken) : t.elementalTokenFills[ele][1]);
-            this.grid.currToken.k.fillBlue(  $.isFunction(t.elementalTokenFills[ele][2]) ? t.elementalTokenFills[ele][2](this.grid.currToken) : t.elementalTokenFills[ele][2]);
-            this.grid.currToken.k.fillAlpha( $.isFunction(t.elementalTokenFills[ele][3]) ? t.elementalTokenFills[ele][3](this.grid.currToken) : t.elementalTokenFills[ele][3]);
+            k.fillRed(   $.isFunction(t.elementalTokenFills[ele][0]) ? t.elementalTokenFills[ele][0](this.grid.currToken) : t.elementalTokenFills[ele][0]);
+            k.fillGreen( $.isFunction(t.elementalTokenFills[ele][1]) ? t.elementalTokenFills[ele][1](this.grid.currToken) : t.elementalTokenFills[ele][1]);
+            k.fillBlue(  $.isFunction(t.elementalTokenFills[ele][2]) ? t.elementalTokenFills[ele][2](this.grid.currToken) : t.elementalTokenFills[ele][2]);
+            k.fillAlpha( $.isFunction(t.elementalTokenFills[ele][3]) ? t.elementalTokenFills[ele][3](this.grid.currToken) : t.elementalTokenFills[ele][3]);
         }
         else
         {
-            this.grid.currToken.k.fillRed(   $.isFunction(t.defaultTokenFill[0]) ? t.defaultTokenFill[0](this.grid.currToken) : t.defaultTokenFill[0]);
-            this.grid.currToken.k.fillGreen( $.isFunction(t.defaultTokenFill[1]) ? t.defaultTokenFill[1](this.grid.currToken) : t.defaultTokenFill[1]);
-            this.grid.currToken.k.fillBlue(  $.isFunction(t.defaultTokenFill[2]) ? t.defaultTokenFill[2](this.grid.currToken) : t.defaultTokenFill[2]);
-            this.grid.currToken.k.fillAlpha( $.isFunction(t.defaultTokenFill[3]) ? t.defaultTokenFill[3](this.grid.currToken) : t.defaultTokenFill[3]);
+            k.fillRed(   $.isFunction(t.defaultTokenFill[0]) ? t.defaultTokenFill[0](this.grid.currToken) : t.defaultTokenFill[0]);
+            k.fillGreen( $.isFunction(t.defaultTokenFill[1]) ? t.defaultTokenFill[1](this.grid.currToken) : t.defaultTokenFill[1]);
+            k.fillBlue(  $.isFunction(t.defaultTokenFill[2]) ? t.defaultTokenFill[2](this.grid.currToken) : t.defaultTokenFill[2]);
+            k.fillAlpha( $.isFunction(t.defaultTokenFill[3]) ? t.defaultTokenFill[3](this.grid.currToken) : t.defaultTokenFill[3]);
         }
 
         this.grid.layer.draw();

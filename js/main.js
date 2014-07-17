@@ -2,7 +2,6 @@
 //
 //  -rules (wildcards - unfedined element)
 //  -sounds
-//  -stop wasteful calls to refreshTheme (implement colors on token creation)
 //  -clean/refactor (always)
 //  -do we need jquery?
 //  -kineticjs 5.1.0 update breaks tweens
@@ -43,6 +42,8 @@ _STAGE.add(_HITLAYER);
 
 var _ELEMENTS = ["fire", "water", "air", "earth", "light", "dark", undefined];
 var _ICONS = loadIcons();
+
+var _SOUNDS = loadSounds();
 
 $(window).on("mousedown touchstart", function(e){
   var posX, posY;
@@ -124,13 +125,14 @@ $(window).on("keydown", function(e)
   else if(code == 32) _GRID.captureToken(); //space
 });
 
-var _THEMER = new Themer();
+var _THEMER = new Themer('bone');
+//var _THEMER = new Themer('radial_rainbow');
+//_THEMER.currentInterval = setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
+
 var _GRID = new Grid(_STAGE, _GRIDDEPTH, _MOVEMENT_MATRIX, null, _THEMER);
 _GRID.generateToken();
 
-_THEMER.applyTheme('bone');
-//_THEMER.applyTheme('radial_rainbow');
-//_THEMER.currentInterval = setInterval(function(){ _THEMER.currentTheme.swatches.push(_THEMER.currentTheme.swatches.shift()); _THEMER.applyTheme('radial_rainbow'); }, 100);
+_THEMER.refreshTheme();
 
 var et = new Date();
 //console.log("init took: " + (et - st) + "ms");

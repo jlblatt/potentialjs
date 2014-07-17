@@ -144,16 +144,16 @@ Grid.prototype.captureToken = function()
         thisToken.k.shadowEnabled(0);
       }
     });
+    
     tokenTween.play();
+    
+    _SOUNDS.drop.currentTime = 0;
+    _SOUNDS.drop.play();
 
-    //this.currToken.k.strokeWidth(1);
-    //this.currToken.k.shadowOpacity(0);
     this.cells[this.currToken.gridID].holding = true;
     this.cells[this.currToken.gridID].heldToken = this.currToken;
+    this.themer.stopTokenFlashing();
     this.generateToken();
-    //this.themer.refreshToken();
-    //this.grid.layer.draw();
-    this.themer.refreshTheme();
   }
 }
 
@@ -191,7 +191,7 @@ Grid.prototype.generateToken = function()
     iconTween.play();
   }
 
-  //this.themer.refreshTheme();
+  this.themer.refreshToken();
 }
 
 

@@ -92,6 +92,9 @@ Token.prototype.moveTo = function(cid)
   }
 
   tokenTween.play();
+
+  _SOUNDS.swipe.currentTime = 0;
+  _SOUNDS.swipe.play();
 }
 
 Token.prototype.collide = function(cid)
@@ -153,25 +156,15 @@ Token.prototype.collide = function(cid)
       otherTokenTween.play();
       otherIconTween.play();
 
+      _SOUNDS.collide.currentTime = 0;
+      _SOUNDS.collide.play();
+
       thisToken.grid.cells[cid].holding = false;
       thisToken.grid.cells[cid].heldToken = undefined;
       thisToken.grid.generateToken();
-      //thisToken.grid.themer.refreshTheme();
 
     }, duration);
   }
-}
-
-Token.prototype.moveToNearest = function(x, y, grid)
-{
-  var nearestID = grid.findNearestExact(x, y);
-
-  if(nearestID === undefined) return;
-  
-  this.gridID = nearestID;
-  this.k.x(grid.cells[nearestID].x());
-  this.k.y(grid.cells[nearestID].y());
-  this.layer.draw();
 }
 
 Token.prototype.moveByDir = function(dir)

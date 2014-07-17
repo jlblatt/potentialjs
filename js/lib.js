@@ -27,6 +27,16 @@ function loadIcons()
   return imgs;
 }
 
+function loadSounds()
+{
+  return {
+    "spawn" : new Audio('sfx/spawn.wav'),
+    "swipe" : new Audio('sfx/swipe.wav'),
+    "drop" : new Audio('sfx/drop.wav'),
+    "collide" : new Audio('sfx/collide.wav')
+  }
+}
+
 function combineElements(ele1, ele2)
 {
   if(
