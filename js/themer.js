@@ -28,7 +28,7 @@ function Themer(themeName)
     
     this.themes['default'] = new Theme({
         name: "default",
-        defaultGridFill: [200, 200, 255, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [function(cell){ return 200 - ((200 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 200 - ((200 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 255 - ((255 / (cell.wrapper.depth)) * cell.level); }, 1],
         defaultTokenFill: [200, 200, 255, 1],
         elementalTokenFills: standardElementalTokenFills
     });
@@ -36,21 +36,21 @@ function Themer(themeName)
 
     this.themes['crimson'] = new Theme({
         name: "crimson",
-        defaultGridFill: [255, 100, 100, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [function(cell){ return 255 - ((255 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 100 - ((100 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 100 - ((100 / (cell.wrapper.depth)) * cell.level); }, 1],
         defaultTokenFill: [255, 150, 150, 1],
         elementalTokenFills: standardElementalTokenFills
     });
 
     this.themes['forest'] = new Theme({
         name: "forest",
-        defaultGridFill: [100, 255, 100, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [function(cell){ return 100 - ((100 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 255 - ((255 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 100 - ((100 / (cell.wrapper.depth)) * cell.level); }, 1],
         defaultTokenFill: [150, 255, 150, 1],
         elementalTokenFills: standardElementalTokenFills
     });
 
     this.themes['bone'] = new Theme({
         name: "bone",
-        defaultGridFill: [200, 200, 200, function(cell){ return .8 - ((.8 / (cell.wrapper.depth)) * cell.level); }],
+        defaultGridFill: [function(cell){ return 150 - ((100 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 150 - ((100 / (cell.wrapper.depth)) * cell.level); }, function(cell){ return 150 - ((100 / (cell.wrapper.depth)) * cell.level); }, 1],
         defaultTokenFill: [245, 245, 245, 1],
         elementalTokenFills: standardElementalTokenFills
     });

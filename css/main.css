@@ -4,14 +4,15 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 html, body {
   width: 100%; 
   height: 100%; 
-  background: #000; 
+  background: #222 url('../img/bg.png'); 
   color: #aaa; 
   overflow: hidden;
 }
 
 #stage {
-  position: absolute; 
-  left: 50%; 
-  top: 50%; 
-  background: #000;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
 }

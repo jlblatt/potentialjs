@@ -8,3 +8,5 @@ Just hacking around with [kinetic.js](http://kineticjs.com/).
 * Dark: [Freepik](http://www.flaticon.com/authors/freepik) via [Flaticon](http://www.flaticon.com)
 ##### SoundFX Credit:
 * [Bfxr](http://www.bfxr.net/)
+##### Patters/brushes/images:
+* [Transparent Textures](http://www.transparenttextures.com/)

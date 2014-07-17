@@ -15,7 +15,8 @@ function Grid(stage, depth, matrix, token, themer)
     themer.grid = this;
   }
 
-  this.cellDiameter = stage.width() / (depth * 2.2);
+  var shortSide = stage.width() < stage.height() ? stage.width() : stage.height();
+  this.cellDiameter = shortSide / (depth * 2.2);
 
   this.cells = [];
 
@@ -163,7 +164,7 @@ Grid.prototype.captureToken = function()
 Grid.prototype.generateToken = function()
 {
   var ele = _ELEMENTS[Math.floor(Math.random() * _ELEMENTS.length)];
-  this.currToken = new Token(this.stage.width() / (2 * this.stage.scaleX()), this.stage.height() / (2 * this.stage.scaleY()), this.cellDiameter, ele);
+  this.currToken = new Token(this.cells[0].x(), this.cells[0].y(), this.cellDiameter, ele);
   this.currToken.grid = this;
   this.layer.add(this.currToken.k);
 

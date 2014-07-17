@@ -1,29 +1,30 @@
 //TODO:
 //
 //  -rules (wildcards - unfedined element)
-//  -sounds
+//  -better sounds
 //  -clean/refactor (always)
 //  -do we need jquery?
 //  -kineticjs 5.1.0 update breaks tweens
-//  -full window canvas
+//  -token tween durations depend on origWidth, fix
+//  -fix window resize scaling grid incorrectly
 //
 
 var st = new Date();
 
-var _LENGTH = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
 var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 4;
 
 var _STAGE = new Kinetic.Stage({
   container: 'stage',
-  width: _LENGTH,
-  height: _LENGTH
+  width: $(window).width(),
+  height: $(window).height()
 });
-_STAGE.origLength = _LENGTH;
 
-resizeStage(_STAGE, _STAGE.width(), 1);
+_STAGE.origWidth = $(window).width();
+_STAGE.origHeight = $(window).height();
+
+resizeStage(_STAGE, _STAGE.width(),  _STAGE.height());
 $(window).resize(function(){
-  var newLength = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
-  resizeStage(_STAGE, newLength,  newLength / _STAGE.origLength);
+  resizeStage(_STAGE, $(window).width(), $(window).height());
 });
 
 var _HITLAYER = new Kinetic.Layer();
