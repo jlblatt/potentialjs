@@ -25,8 +25,18 @@ function Token(x, y, diameter, element)
     scaleX: 0,
     scaleY: 0,
     rotation: -120,
-    strokeWidth: 1,
-    stroke: 'white'
+    strokeWidth: len / 10,
+    fillRed: 255,
+    fillGreen: 255,
+    fillBlue: 255,
+    fillAlpha: 1,
+    strokeRed: 255,
+    strokeGreen: 255,
+    strokeBlue: 255,
+    strokeAlpha: .8,
+    shadowColor: 'white',
+    shadowBlur: len * 4,
+    tension: .9
   });
 
   if(element)
@@ -52,7 +62,6 @@ Token.prototype.moveTo = function(cid)
 {
   if(cid === undefined) return;
   this.gridID = cid;
-
   var dx = this.grid.cells[cid].x() - this.k.x();
   var dy = this.grid.cells[cid].y() - this.k.y();
   var duration = Math.abs(Math.sqrt((dx * dx) + (dy * dy))) / (this.grid.stage.origLength * 1.5);
@@ -107,7 +116,8 @@ Token.prototype.collide = function(cid)
         rotation: 180,
         scaleX: 0,
         scaleY: 0,
-        opacity: 0
+        opacity: 0,
+        tension: 0
       });
 
       var thisIconTween = new Kinetic.Tween({
@@ -146,7 +156,7 @@ Token.prototype.collide = function(cid)
       thisToken.grid.cells[cid].holding = false;
       thisToken.grid.cells[cid].heldToken = undefined;
       thisToken.grid.generateToken();
-      thisToken.grid.themer.refreshTheme();
+      //thisToken.grid.themer.refreshTheme();
 
     }, duration);
   }

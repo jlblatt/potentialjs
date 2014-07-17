@@ -1,16 +1,18 @@
 //TODO:
 //
-//  -rules
+//  -rules (wildcards - unfedined element)
 //  -sounds
 //  -stop wasteful calls to refreshTheme (implement colors on token creation)
 //  -clean/refactor (always)
 //  -do we need jquery?
+//  -kineticjs 5.1.0 update breaks tweens
+//  -full window canvas
 //
 
 var st = new Date();
 
 var _LENGTH = $(window).width() < $(window).height() ? $(window).width() : $(window).height();
-var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 5;
+var _GRIDDEPTH = location.search != "" ? parseInt(location.search.replace('?', '')) : 4;
 
 var _STAGE = new Kinetic.Stage({
   container: 'stage',
@@ -39,7 +41,7 @@ var _HITBOX = new Kinetic.Line({
 _HITLAYER.add(_HITBOX);
 _STAGE.add(_HITLAYER);
 
-var _ELEMENTS = ["fire", "water", "air", "earth", "light", "dark"];
+var _ELEMENTS = ["fire", "water", "air", "earth", "light", "dark", undefined];
 var _ICONS = loadIcons();
 
 $(window).on("mousedown touchstart", function(e){

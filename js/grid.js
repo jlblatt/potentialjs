@@ -15,7 +15,7 @@ function Grid(stage, depth, matrix, token, themer)
     themer.grid = this;
   }
 
-  this.cellDiameter = stage.width() / (depth * 2);
+  this.cellDiameter = stage.width() / (depth * 2.2);
 
   this.cells = [];
 
@@ -131,9 +131,28 @@ Grid.prototype.captureToken = function()
 {
   if(this.currToken.gridID != 0)
   {
+    var thisToken = this.currToken;
+    var tokenTween = new Kinetic.Tween({
+      node: this.currToken.k, 
+      duration: .25,
+      easing: Kinetic.Easings.EaseOut,
+      tension: 0,
+      shadowBlur: 0,
+      onFinish: function() {
+        thisToken.k.shadowOpacity(0);
+        thisToken.k.strokeWidth(1);
+        thisToken.k.shadowEnabled(0);
+      }
+    });
+    tokenTween.play();
+
+    //this.currToken.k.strokeWidth(1);
+    //this.currToken.k.shadowOpacity(0);
     this.cells[this.currToken.gridID].holding = true;
     this.cells[this.currToken.gridID].heldToken = this.currToken;
     this.generateToken();
+    //this.themer.refreshToken();
+    //this.grid.layer.draw();
     this.themer.refreshTheme();
   }
 }
@@ -171,6 +190,8 @@ Grid.prototype.generateToken = function()
         
     iconTween.play();
   }
+
+  //this.themer.refreshTheme();
 }
 
 
